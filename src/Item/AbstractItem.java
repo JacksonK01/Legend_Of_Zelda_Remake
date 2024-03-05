@@ -24,8 +24,8 @@ public abstract class AbstractItem {
 
     static {
         try {
-            itemSpriteSheet1 = ImageIO.read(AbstractItem.class.getResourceAsStream("/items/ItemSpriteSheet1.png"));
-            itemSpriteSheet2 = ImageIO.read(AbstractItem.class.getResourceAsStream("/items/ItemSpriteSheet2.png"));
+            itemSpriteSheet1 = ImageIO.read(AbstractItem.class.getResourceAsStream("/textures/items/ItemSpriteSheet1.png"));
+            itemSpriteSheet2 = ImageIO.read(AbstractItem.class.getResourceAsStream("/textures/items/ItemSpriteSheet2.png"));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

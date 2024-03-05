@@ -6,9 +6,7 @@ import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 
 public class TileManager {
 
@@ -20,12 +18,12 @@ public class TileManager {
 
     static {
         try {
-            basicSheet = ImageIO.read(TileManager.class.getResourceAsStream("/overworld/BasicOverworldTiles.png"));
-            springSheet = ImageIO.read(TileManager.class.getResourceAsStream("/overworld/SpringOverworldTiles.png"));
-            summerSheet = ImageIO.read(TileManager.class.getResourceAsStream("/overworld/SummerOverworldTiles.png"));
+            basicSheet = ImageIO.read(TileManager.class.getResourceAsStream("/textures/overworld/BasicOverworldTiles.png"));
+            springSheet = ImageIO.read(TileManager.class.getResourceAsStream("/textures/overworld/SpringOverworldTiles.png"));
+            summerSheet = ImageIO.read(TileManager.class.getResourceAsStream("/textures/overworld/SummerOverworldTiles.png"));
             //Note: this is one pixel less than the others. This one is not my fault.
-            fallSheet = ImageIO.read(TileManager.class.getResourceAsStream("/overworld/FallOverworldTiles.png"));
-            winterSheet = ImageIO.read(TileManager.class.getResourceAsStream("/overworld/WinterOverworldTiles.png"));
+            fallSheet = ImageIO.read(TileManager.class.getResourceAsStream("/textures/overworld/FallOverworldTiles.png"));
+            winterSheet = ImageIO.read(TileManager.class.getResourceAsStream("/textures/overworld/WinterOverworldTiles.png"));
             getTileImage();
         } catch (IOException e) {
             e.printStackTrace();

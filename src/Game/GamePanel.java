@@ -5,6 +5,7 @@ import Input.KeyHandler;
 import Item.AbstractItem;
 import Item.ItemSetter;
 import Tile.TileManager;
+import UI.UI;
 
 import javax.swing.*;
 import java.awt.*;
@@ -31,9 +32,12 @@ public class GamePanel extends JPanel implements Runnable{
     KeyHandler keyH = new KeyHandler();
     TileManager tileManager = new TileManager(this);
 //    Camera camera = new Camera(this);
+    Sound music = new Sound();
+    Sound soundEffect = new Sound();
     public Player player = new Player(this, keyH);
     public CollisionChecker collisionChecker = new CollisionChecker(this);
     public ArrayList<AbstractItem> itemsList = new ArrayList<>();
+    public UI ui = new UI(this);
     public ItemSetter itemSetter = new ItemSetter(this);
 
 
@@ -45,6 +49,7 @@ public class GamePanel extends JPanel implements Runnable{
         this.setFocusable(true);
 
         this.window = window;
+        playMusic(Sound.SoundEvents.OVERWORLD_THEME);
     }
 
     public void startGameThread() {
@@ -102,10 +107,28 @@ public class GamePanel extends JPanel implements Runnable{
 
         player.draw(g2);
 
+        ui.draw(g2);
+
         g2.dispose();
     }
 
     public int getTileSize() {
         return tileSize;
+    }
+
+    public void playMusic(Sound.SoundEvents theme) {
+        music.setFile(theme);
+        music.changeVolume(-15);
+        music.play();
+        music.loop();
+    }
+
+    public void stopMusic() {
+        music.stop();
+    }
+
+    public void playSoundEffect(Sound.SoundEvents soundEvents) {
+        soundEffect.setFile(soundEvents);
+        soundEffect.play();
     }
 }

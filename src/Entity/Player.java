@@ -1,7 +1,14 @@
 package Entity;
 
 import Game.GamePanel;
+import Game.Sound;
 import Input.KeyHandler;
+import Item.AbstractItem;
+import Item.Rupee.AbstractRupee;
+import Item.Rupee.BlueRupee;
+import Item.Rupee.GreenRupee;
+import Item.Rupee.RedRupee;
+import Item.Weapon.WoodenSwordItem;
 import Map.MapHandler;
 import Map.Overworld;
 import Util.ImageUtil;
@@ -19,6 +26,8 @@ public class Player extends Entity{
     int spriteCounter = 0;
     int spriteState = 0;
     MapHandler currentMap;
+    public AbstractItem[] inventory = new AbstractItem[10];
+    public int wallet = 0;
 
     public final int screenX, screenY;
 
@@ -81,7 +90,7 @@ public class Player extends Entity{
         int Itemidx = gp.collisionChecker.checkItem(this, true);
         pickUpItem(Itemidx);
 
-        if (keyH.isAnyKeyPressed()) {
+        if (keyH.isAnyMoveKeyPressed()) {
             if (!collisionOn) {
                 switch(direction) {
                     case "up": moveUp(); break;
@@ -107,12 +116,22 @@ public class Player extends Entity{
 
     public void pickUpItem(int i) {
         if(i != gp.itemsList.size() + 1) {
-            gp.itemsList.set(i, null);
+            AbstractItem item = gp.itemsList.get(i);
+            if(item instanceof AbstractRupee) {
+                wallet += ((AbstractRupee) item).value;
+                gp.playSoundEffect(Sound.SoundEvents.GET_RUPEE);
+            } else if (item instanceof WoodenSwordItem) {
+                addItemToInventory(item);
+                gp.playSoundEffect(Sound.SoundEvents.GET_GENERIC_ITEM);
+            } else if (item != null) {
+                gp.playSoundEffect(Sound.SoundEvents.GET_GENERIC_ITEM);
+            }
+            gp.itemsList.remove(i);
         }
     }
 
     public BufferedImage getPlayerImage() throws IOException {
-        return ImageIO.read(Objects.requireNonNull(getClass().getResourceAsStream("/player/LinkSpriteSheet.png")));
+        return ImageIO.read(Objects.requireNonNull(getClass().getResourceAsStream("/textures/player/LinkSpriteSheet.png")));
     }
 
     public void draw(Graphics2D g2) {
@@ -158,5 +177,23 @@ public class Player extends Entity{
 
     public MapHandler getCurrentMap() {
         return this.currentMap;
+    }
+
+    public void addItemToInventory(AbstractItem item) {
+        boolean keepLooping = true;
+        for(int i = 0; keepLooping; i++) {
+            if(inventory[i] == null) {
+                inventory[i] = item;
+                keepLooping = false;
+            }
+        }
+    }
+
+    public String[] InventoryToString() {
+        String[] out = new String[inventory.length];
+        for(int i = 0; i < this.inventory.length; i++) {
+            out[i] = (this.inventory[i] == null) ? i + ": empty" : i + ": " + inventory[i].name;
+        }
+        return out;
     }
 }
