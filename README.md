@@ -1,1 +1,1 @@
-In progress of a remake of the legend of zelda
+This project is a remake of the classic action-adventure game "The Legend of Zelda" originally developed by Nintendo. The goal is to recreate the immersive gameplay, captivating storyline, and iconic characters of the original game while leveraging modern technologies and enhancements to provide an enhanced gaming experience.
