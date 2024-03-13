@@ -1,13 +1,12 @@
 package Entity;
 
+import Entity.Animation.Animation;
+import Entity.Animation.AnimationHandler;
 import Game.GamePanel;
 import Game.Sound;
 import Input.KeyHandler;
 import Item.AbstractItem;
 import Item.Rupee.AbstractRupee;
-import Item.Rupee.BlueRupee;
-import Item.Rupee.GreenRupee;
-import Item.Rupee.RedRupee;
 import Item.Weapon.WoodenSwordItem;
 import Map.MapHandler;
 import Map.Overworld;
@@ -15,19 +14,27 @@ import Util.ImageUtil;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
-import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.Objects;
 
 public class Player extends Entity{
-    GamePanel gp;
+    public GamePanel gp;
     KeyHandler keyH;
-    BufferedImage north1, north2, east1, east2, south1, south2, west1, west2;
-    int spriteCounter = 0;
-    int spriteState = 0;
     MapHandler currentMap;
     public AbstractItem[] inventory = new AbstractItem[10];
     public int wallet = 0;
+
+    //This is used at the end of the draw method
+    Animation currentAnimation;
+
+    //I load in the animations for the walk cycle using this walkcycle variable.
+    //I'd rather convert this into a factory method that can return a array of an instance
+    Animation walkCycle;
+    Animation walkSouth, walkEast, walkNorth, walkWest;
+
+    Animation useWeapon;
+    Animation useWeaponUp, useWeaponDown, useWeaponLeft, useWeaponRight;
+
 
     public final int screenX, screenY;
 
@@ -36,19 +43,6 @@ public class Player extends Entity{
         this.keyH = keyH;
         this.direction = "down";
         setDefaultValues();
-        try {
-            this.spriteSheet = getPlayerImage();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        south1 = spriteSheet.getSubimage(1, 11, 16, 16);
-        south2 = spriteSheet.getSubimage(18, 11, 16, 16);
-        east1 = spriteSheet.getSubimage(35, 11, 16, 16);
-        east2 = spriteSheet.getSubimage(52, 11, 16, 16);
-        north1 = spriteSheet.getSubimage(69, 11, 16, 16);
-        north2 = spriteSheet.getSubimage(86, 11, 16, 16);
-        west1 = ImageUtil.flipImageHorizontal(east1);
-        west2 = ImageUtil.flipImageHorizontal(east2);
 
         this.currentMap = new Overworld();
 
@@ -61,6 +55,45 @@ public class Player extends Entity{
 
         this.solidAreaDefaultX = solidAreax;
         this.solidAreaDefaultY = solidAreaY;
+
+        try {
+            walkCycle = new Animation(6, ImageIO.read(Objects.requireNonNull(getClass().getResourceAsStream("/textures/player/playerWalkCycle.png"))),
+                    0, false, 0, 0);
+            useWeapon = new Animation(3, ImageIO.read(Objects.requireNonNull(getClass().getResourceAsStream("/textures/player/playerAttack.png"))),
+                    12, false, screenX, screenY);
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
+        walkSouth = new Animation(2, null, 12, true, screenX, screenY);
+        walkSouth.setFrame(0, walkCycle.getFrame(0));
+        walkSouth.setFrame(1, walkCycle.getFrame(1));
+
+        walkEast = new Animation(2, null,12, true, screenX, screenY);
+        walkEast.setFrame(0, walkCycle.getFrame(2));
+        walkEast.setFrame(1, walkCycle.getFrame(3));
+
+        walkWest = new Animation(2, null, 12, true, screenX, screenY);
+        walkWest.setFrame(0, ImageUtil.flipImageHorizontal(walkCycle.getFrame(2)));
+        walkWest.setFrame(1, ImageUtil.flipImageHorizontal(walkCycle.getFrame(3)));
+
+        walkNorth = new Animation(2, null, 12, true, screenX, screenY);
+        walkNorth.setFrame(0, walkCycle.getFrame(4));
+        walkNorth.setFrame(1, walkCycle.getFrame(5));
+
+        useWeaponDown = new Animation(1, null, 0, false, screenX, screenY);
+        useWeaponDown.setFrame(0, useWeapon.getFrame(0));
+
+        useWeaponRight = new Animation(1, null, 0, false, screenX, screenY);
+        useWeaponRight.setFrame(0, useWeapon.getFrame(1));
+
+        useWeaponUp = new Animation(1, null, 0, false, screenX, screenY);
+        useWeaponUp.setFrame(0, useWeapon.getFrame(2));
+
+        useWeaponLeft = new Animation(1, null, 0, false, screenX, screenY);
+        useWeaponLeft.setFrame(0, ImageUtil.flipImageHorizontal(useWeapon.getFrame(1)));
+
+        this.currentAnimation = walkSouth;
     }
 
     @Override
@@ -73,15 +106,19 @@ public class Player extends Entity{
     public void update() {
         if (keyH.upPressed) {
             this.direction = "up";
+            this.currentAnimation = walkNorth;
         }
         else if (keyH.downPressed) {
             this.direction = "down";
+            this.currentAnimation = walkSouth;
         }
         else if (keyH.rightPressed) {
             this.direction = "right";
+            this.currentAnimation = walkEast;
         }
         else if (keyH.leftPressed) {
             this.direction = "left";
+            this.currentAnimation = walkWest;
         }
 
         // IF COLLISION IS FALSE PLAYER CAN MOVE
@@ -99,23 +136,15 @@ public class Player extends Entity{
                     case "right": moveRight(); break;
                 }
             }
-            spriteCounter++;
-            if(spriteCounter > 12) {
-                if(spriteState == 1) {
-                    spriteState = 0;
-                } else {
-                    spriteState = 1;
-                }
-                spriteCounter = 0;
-            }
+
         } else {
-            spriteState = 0;
-            spriteCounter = 0;
+            currentAnimation.setCurrentFrame(0);
+            currentAnimation.setSpriteCounter(0);
         }
     }
 
     public void pickUpItem(int i) {
-        if(i != gp.itemsList.size() + 1) {
+        if(i < gp.itemsList.size()) {
             AbstractItem item = gp.itemsList.get(i);
             if(item instanceof AbstractRupee) {
                 wallet += ((AbstractRupee) item).value;
@@ -130,49 +159,11 @@ public class Player extends Entity{
         }
     }
 
-    public BufferedImage getPlayerImage() throws IOException {
-        return ImageIO.read(Objects.requireNonNull(getClass().getResourceAsStream("/textures/player/LinkSpriteSheet.png")));
-    }
-
     public void draw(Graphics2D g2) {
-
-        BufferedImage image = null;
-        switch (direction) {
-            case "down":
-                if (spriteState == 0) {
-                    image = this.south1;
-                }
-                if (spriteState == 1) {
-                    image = this.south2;
-                }
-                break;
-            case "up":
-                if (spriteState == 0) {
-                    image = this.north1;
-                }
-                if (spriteState == 1) {
-                    image = this.north2;
-                }
-                break;
-            case "right":
-                if (spriteState == 0) {
-                    image = this.east1;
-                }
-                if (spriteState == 1) {
-                    image = this.east2;
-                }
-                break;
-            case "left":
-                if (spriteState == 0) {
-                    image = this.west1;
-                }
-                if (spriteState == 1) {
-                    image = this.west2;
-                }
-                break;
+        if(keyH.interactPressed) {
+            currentAnimation = useWeapon;
         }
-
-        g2.drawImage(image, screenX, screenY, this.gp.getTileSize(), this.gp.getTileSize(), null);
+        currentAnimation.playAnimation(g2);
     }
 
     public MapHandler getCurrentMap() {

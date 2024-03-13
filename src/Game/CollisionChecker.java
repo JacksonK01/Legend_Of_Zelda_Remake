@@ -58,7 +58,7 @@ public class CollisionChecker {
                 break;
         }
     }
-    public int checkItem(Entity entity, boolean isPlayer) {
+    public <T extends Entity> int checkItem(T entity, boolean isPlayer) {
         //Will throw an error if the item doesn't exist
         int idx = gp.itemsList.size() + 1;
 

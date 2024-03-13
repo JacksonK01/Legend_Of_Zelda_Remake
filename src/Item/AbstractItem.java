@@ -8,7 +8,7 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 
 public abstract class AbstractItem {
-    public BufferedImage image;
+    public BufferedImage worldSprite;
     public String name;
     public boolean collision = false;
     public int worldX, worldY;
@@ -35,7 +35,7 @@ public abstract class AbstractItem {
         int screenX = worldX - gp.player.worldX + gp.player.screenX;
         int screenY = worldY - gp.player.worldY + gp.player.screenY;
         if ((0 <= screenX + gp.tileSize && screenX <= gp.screenWidth) && (0 <= screenY + gp.tileSize && screenY <= gp.screenHeight)) {
-            g2.drawImage(this.image, screenX, screenY, gp.scale * this.width, gp.scale * this.height, null);
+            g2.drawImage(this.worldSprite, screenX, screenY, gp.scale * this.width, gp.scale * this.height, null);
         }
     }
 

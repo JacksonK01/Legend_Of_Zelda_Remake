@@ -29,7 +29,7 @@ public class GamePanel extends JPanel implements Runnable{
 
     Thread gameThread;
 
-    KeyHandler keyH = new KeyHandler();
+    public KeyHandler keyH = new KeyHandler();
     TileManager tileManager = new TileManager(this);
 //    Camera camera = new Camera(this);
     Sound music = new Sound();
